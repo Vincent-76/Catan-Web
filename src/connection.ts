@@ -1,5 +1,5 @@
 
-import { store } from "@/store";
+import store from "@/store";
 
 enum ConnectionError {
     TIMEOUT = 0,
@@ -42,24 +42,27 @@ class ConnectionRequest<T> {
 }
 
 export class Connection {
-    private connection:WebSocket | null = null;
-    private connecting = false;
-    private sessionID:string | null = null;
-    private count = 1;
-    private requests:Map<number, ConnectionRequest<string>> = new Map();
-    //private queue:Queue<ConnectionRequest<string>> = new Queue();
-    private timeoutTimer:number;
+    private connection:WebSocket | null = null
+    private connecting = false
+    private sessionID:string | null = null
+    private nextID = 1
+    private nextAnswerID = -1
+    private requests:Map<number, ConnectionRequest<string>> = new Map()
+    private openConfirmations:number[] = []
+    private openInput:Map<number, string> = new Map()
+    //private queue:Queue<ConnectionRequest<string>> = new Queue()
+    private timeoutTimer:number
 
     constructor() {
-        this.timeoutTimer = setInterval( () => Connection.checkTimeout( this ), 3000 )
+        this.timeoutTimer = setInterval( () => Connection.checkTimeout( this ), 5000 )
     }
 
-    private static checkTimeout(t:Connection ):void {
+    private static checkTimeout( t:Connection ):void {
         const timestamp = Date.now();
         for( const entry of t.requests.entries() )
             if( entry[1].isTimeout( timestamp ) ) {
                 t.requests.delete( entry[0] )
-                entry[1].reject( ConnectionError.TIMEOUT )
+                entry[1].reject( "Timeout" )//ConnectionError.TIMEOUT. )
             }
     }
 
@@ -76,43 +79,105 @@ export class Connection {
     private onOpen():void {
         this.connecting = false;
         console.log( "WebSocket opened!" )
-        this.requests.forEach( ( request ) => this.send( request) )
+        if( this.nextAnswerID < 0 )
+            this.requestNextAnswerID()
+        if( this.openConfirmations.length > 0 && this.send( `[${this.openConfirmations.map( id => `"!${id}"` ).join( "," )}]` ) )
+            this.openConfirmations = []
+        if( this.requests.size > 0 )
+            this.send( `[${Array.from( this.requests.values() ).map( r => `"${r.serialize()}"` ).join( "," )}]` )
+        //this.requests.forEach( ( request ) => this.send( request.serialize() ) )
+    }
+
+    private requestNextAnswerID():void {
+        this.send( "-" )
     }
 
     private onMessage( message:MessageEvent ):void {
         const msg:string = message.data
         if( msg.length <= 50 )
-            console.log( msg )
+            console.log( { msg: msg, nextAnswerID: this.nextAnswerID } )
         else
-            console.log( msg.substring( 0, 50 ) + " ..." )
+            console.log( { msg: msg.substring( 0, 50 ) + " ...", nextAnswerID: this.nextAnswerID } )
+        if( msg.startsWith( "-" ) && this.nextAnswerID < 0 ) {
+            this.nextAnswerID = parseInt( msg.substring( 1 ) ) ?? -1
+            if( this.nextAnswerID >= 0 )
+                this.checkOpenInput()
+        } else if( msg.startsWith( "[" ) )
+            ( JSON.parse( msg ) as string[] ).forEach( this.handleRawMessage )
+        else this.handleRawMessage( msg )
+    }
+
+    private checkOpenInput():void {
+        const nextInput:string | undefined = this.openInput.get( this.nextAnswerID )
+        if( nextInput !== undefined ) {
+            this.openInput.delete( this.nextAnswerID )
+            this.handleMessage( nextInput )
+        }
+    }
+
+    private handleRawMessage( rawMsg:string ) {
+        const i:number = rawMsg.indexOf( "|" )
+        if( i <= 0 )
+            return
+        const msgID:number | undefined = parseInt( rawMsg.substring( 0, i ) )
+        if( msgID === undefined )
+            return
+        this.confirm( msgID )
+        const body:string = rawMsg.substring( i + 1 )
+        if( msgID == this.nextAnswerID )
+            this.handleMessage( body )
+        else if( msgID > this.nextAnswerID ) {
+            if( this.nextAnswerID < 0 )
+                this.requestNextAnswerID()
+            this.openInput.set( msgID, body )
+        }
+    }
+
+    private handleMessage( msg:string ):void {
+        this.nextAnswerID++
         const i:number = msg.indexOf( "|" )
-        if( i < 0 )
-            return
-        const head:string = msg.substring( 0, i )
-        const data:string = msg.substring( i + 1 )
-        if( head.startsWith( "?" ) ) {
-            const event:string = head.substring( 1 )
-            if( event.length > 0 )
-                this.onEvent( event, data )
-            return
-        } else if( head.startsWith( "!" ) ) {
-            const id:number | undefined = parseInt( head.substring( 1 ) )
-            if( id === undefined )
-                return
-            const reason:number | string | undefined = Object.values( ConnectionError ).find( ( v ) => v == data )
-            const request:ConnectionRequest<string> | undefined = this.requests.get( id )
-            if( request !== undefined ) {
-                alert( data )
-                request.reject( reason )
-                this.requests.delete( id )
+        if( i >= 0 ) {
+            const head:string = msg.substring( 0, i )
+            const data:string = msg.substring( i + 1 )
+            if( head.startsWith( "!" ) )
+                this.handleMessageError( head.length > 1 ? parseInt( head.substring( 1 ) ) : undefined, data )
+            else if( head.startsWith( "?" ) ) {
+                const update:string = head.substring( 1 )
+                if( update.length > 0 )
+                    this.onUpdate( update, data )
+            } else {
+                const id:number | undefined = parseInt( head )
+                if( id !== undefined ) {
+                    const request:ConnectionRequest<string> | undefined = this.requests.get( id )
+                    if( request !== undefined ) {
+                        request.resolve( data )
+                        this.requests.delete( id )
+                    }
+                }
             }
-        } else {
-            const id:number | undefined = parseInt( head )
-            if( id === undefined )
-                return
+        }
+        this.checkOpenInput()
+    }
+
+    private confirm( id:number ) {
+        if( !this.send( `!${id}` ) )
+            this.openConfirmations.push( id )
+    }
+
+    private handleMessageError( id:number | undefined, data:string ) {
+        let code:number | undefined = undefined
+        let reason:string = data
+        const i = data.indexOf( "|" )
+        if( i >= 0 ) {
+            code = parseInt( data.substring( 0, i ) )
+            reason = data.substring( i + 1 )
+        }
+        if( id !== undefined ) {
             const request:ConnectionRequest<string> | undefined = this.requests.get( id )
             if( request !== undefined ) {
-                request.resolve( data )
+                //if( data != "2|NoGame" )
+                //    alert( data )
+                request.reject( reason )
                 this.requests.delete( id )
             }
         }
@@ -127,32 +192,37 @@ export class Connection {
         this.connect( this.sessionID! )
     }
 
-    private send( request:ConnectionRequest<string> ):void {
+    private send( msg:string ):boolean {
         if( !this.connecting ) {
             if( this.connection !== null ) {
-                console.log( "Send: " + request.serialize() )
-                this.connection?.send(request.serialize())
+                console.log( "Send: " + msg )
+                this.connection?.send( msg )
+                return true
             } else {
                 this.connect( this.sessionID! )
             }
-        } else {
-            console.log( "Queued: " + request.serialize() )
         }
+        return false
     }
 
     execute( command:string, data = "" ):Promise<string> {
-        const request:ConnectionRequest<string> = new ConnectionRequest<string>( this.count++, command, data )
+        const request:ConnectionRequest<string> = new ConnectionRequest<string>( this.nextID++, command, data )
         this.requests.set( request.id, request )
-        this.send( request )
+        this.send( request.serialize() )
         return request.promise;
     }
 
-    private onEvent( event:string, data:string ):void {
-        console.log( "Event: " + event )
-        switch ( event ) {
+    private onUpdate( update:string, data:string ):void {
+        console.log( "Update: " + update )
+        switch ( update ) {
             case "info": return alert( data )
+            case "gameUpdate": return store.gameUpdate( data )
             case "gameData": return store.updateGameData( data )
             case "game": return store.updateGame( data )
+            case "gameValues": return store.updateGameValues( data )
+            case "gameStatus": return store.updateGameStatus( data )
+            case "gameField": return store.updateGameField( data
+            )
             case "players": return store.updatePlayers( data )
             case "state": return store.updateState( data )
             case "turn": return store.updateTurn( data )

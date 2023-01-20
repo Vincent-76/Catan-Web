@@ -1,33 +1,35 @@
 <template>
-  <div id="main">
-    <TitleMenu v-if="store.title" />
-    <GameSetup v-else-if="store.isSetup()" />
-    <Game v-else />
-  </div>
+  <TitleMenu v-if="store.isTitle()" :initial-loaded="initialLoaded" />
+  <GameRules v-else-if="store.isRules()" />
+  <GameSetup v-else-if="store.isSetup()" />
+  <Game v-else />
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import { store } from "@/store";
+  import store from "@/store";
   import Game from '@/components/Game.vue';
   import TitleMenu from "@/components/TitleMenu.vue";
   import {uuid} from "vue-uuid";
   import GameSetup from "@/components/GameSetup.vue";
+  import GameRules from "@/components/GameRules.vue";
 
   @Options({
     components: {
+      GameRules,
       GameSetup,
       TitleMenu,
       Game,
     },
     data() {
       return {
-        connection: null,
-        store
+        store,
+        initialLoaded: false
       }
     },
     created() {
       console.log( "Created!" )
+      this.initialLoaded = false
       let sessionID = this.$cookies.get( "sessionID" )
       if( sessionID === null ) {
         sessionID = uuid.v4()
@@ -35,7 +37,11 @@
       }
       console.log( sessionID )
       store.con.connect( sessionID )
-      store.con.execute( "gameData" ).then( res => store.updateGameData( res ) )
+      store.con.execute( "gameData" )
+          .then( res => store.updateGameData( res ) )
+          .catch()
+          //.then( () => new Promise( f => setTimeout( f, 3000 ) ) )
+          .finally( async () => this.initialLoaded = true )
     },
     methods: {
     }
@@ -44,6 +50,12 @@
 </script>
 
 <style lang="less">
+  @import "@/assets/vars.less";
+
+  @pColorGreen: #12ba00;
+  @pColorBlue: #007cba;
+  @pColorYellow: #cdd310;
+  @pColorRed: #d21414;
 
   #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -55,14 +67,6 @@
     height: 100%;
     width: 100%;
   }
-
-  @textColor: black;
-  @buttonBorderColor: #392F31;
-
-  @pColorGreen: #12ba00;
-  @pColorBlue: #007cba;
-  @pColorYellow: #cdd310;
-  @pColorRed: #d21414;
 
   * {
     user-select: none;
@@ -79,11 +83,6 @@
   body {
     font-family: Georgia, Times, Times New Roman, serif;
     background-color: #C0A886;
-  }
-
-  #main {
-    width: 100%;
-    height: 100%;
   }
 
   .ropeBorder {
@@ -105,19 +104,18 @@
     transition: box-shadow 0.1s ease-in-out;
   }
 
-  .button:hover {
+  .button:not( .buttonDisabled ):hover {
     box-shadow: inset 0 0 3px @buttonBorderColor;
     color: initial !important;
     text-decoration: initial !important;
   }
 
-  .button:active {
+  .button:not( .buttonDisabled ):active {
     box-shadow: inset 0 0 5px @buttonBorderColor;
   }
 
   .buttonLoading {
-    background: none !important;
-    background-color: grey !important;
+    background: grey none !important;
     animation: loading 0.5s infinite alternate;
 
     @keyframes loading {
@@ -128,6 +126,10 @@
         border-color: #D09029;
       }
     }
+  }
+
+  .buttonDisabled {
+    background: grey none !important;
   }
 
 
@@ -254,7 +256,7 @@
   .pBorderColorRed { border-color: @pColorRed !important; }
 
 
-  @media (orientation: portrait) {
+  @media @portrait {
     *[class^="col-md"] {
       min-width: 100% !important;
     }
@@ -320,7 +322,7 @@
     }
   }
 
-  @media (orientation: landscape) {
+  @media @landscape {
     *[class^="col-lg"] {
       min-width: 100% !important;
     }

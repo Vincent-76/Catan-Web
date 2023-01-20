@@ -1,33 +1,50 @@
 <template>
-  <div id="content" class="col-md-5">
-    <img id="header" :src="require( '@/assets/images/main_header.png' )" alt="Settlers of Catan" />
-    <div id="buttons" class="col-md-6">
-      <div v-if="store.hasGame()">
-        <a @click="resumeGame" class="button">Resume Game</a>
-        <!-- <a href="" class="button">Resume Game (TUI)</a> -->
+  <div id="main">
+    <div id="content" class="col-md-5">
+      <img id="header" :src="require( '@/assets/images/main_header.png' )" alt="Settlers of Catan" />
+      <div id="buttons" class="col-md-6">
+        <div>
+          <GameButton @action="resumeGame" :initial-loading="!initialLoaded" :enabled="store.hasGame()">Resume Game</GameButton>
+          <!-- <a href="" class="button">Resume Game (TUI)</a> -->
+        </div>
+        <div>
+          <CommandButton command="newGame" :validation="startNewGameValidation" @result="startNewGame">
+            Start New Game
+          </CommandButton>
+          <!-- <a href="" class="button">Start New Game (TUI)</a> -->
+        </div>
+        <div id="joinGame">
+          <input type="text" v-model="joinGameID" placeholder="Game ID" />
+          <CommandButton command="joinGame" :data="joinGameID" @result="joinGame">
+            Join Game
+          </CommandButton>
+          <!-- <a href="" class="button">Start New Game (TUI)</a> -->
+        </div>
+        <GameButton @action="openRules">Game Rules</GameButton>
+        <!-- <a target="_blank" href="" class="button">Open Rules</a> -->
       </div>
-      <div>
-        <a @click="startNewGame" class="button">Start New Game</a>
-        <!-- <a href="" class="button">Start New Game (TUI)</a> -->
-      </div>
-      <div id="joinGame">
-        <input type="text" v-model="joinGameID" placeholder="Game ID" />
-        <a @click="joinGame" class="button">Join Game</a>
-        <!-- <a href="" class="button">Start New Game (TUI)</a> -->
-      </div>
-      <a target="_blank" href="" class="button">Open Rules</a>
     </div>
   </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from "vue";
-  import { store } from "@/store"
+  import store from "@/store"
+  import GameButton from "@/components/GameButton.vue";
+  import CommandButton from "@/components/CommandButton.vue";
 
   export default defineComponent( {
     name: "TitleMenu",
+    components: {
+      GameButton,
+      CommandButton
+    },
     props: {
       sessionExists: {
+        type: Boolean,
+        default: false
+      },
+      initialLoaded: {
         type: Boolean,
         default: false
       }
@@ -40,36 +57,39 @@
     },
     methods: {
       resumeGame():void {
-        this.store.title = false
+        this.store.setGame()
+      },
+      startNewGameValidation():boolean {
+        // TODO Confirmation Message
+        return true
       },
       startNewGame():void {
-        // TODO Confirmation Message
-        this.store.con.execute( "newGame" ).then( () => {
-          this.store.gameData = null
-          this.store.title = false;
-        } )
+        this.store.gameData = null
+        this.store.setGame()
       },
-      joinGame():void {
-        this.store.con.execute( "joinGame", this.joinGameID ).then( res => {
-          this.store.updateGameData( res )
-          this.store.title = false;
-        } )
+      joinGame( res:string ):void {
+        this.store.updateGameData( res )
+        this.store.setGame()
+      },
+      openRules():void {
+        this.store.setRules()
       }
     }
   } )
 </script>
 
 
-<style lang="less">
+<style lang="less" scoped>
+  @import "@/assets/vars.less";
+
   #main {
+    width: 100%;
+    height: 100%;
     background-image: url( "~@/assets/images/main_theme.jpg" );
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
   }
-</style>
-
-<style lang="less" scoped>
 
   #content {
     margin: auto;

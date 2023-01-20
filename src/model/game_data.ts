@@ -1,19 +1,41 @@
-export type JMap<K, V> = [K, V][]
+export interface JMapEntry<K, V> {
+    k: K,
+    v: V
+}
+
+export type JMap<K, V> = JMapEntry<K, V>[]
 
 export interface ClassicGameData {
     gameID:string,
     host:boolean,
     playerID: PlayerID | null,
     game: ClassicGame,
+    gameStatus: GameStatus,
+    resourceImages: JMap<string, Array<number>>,
+    gameValues: GameValues
+}
+
+export interface GameValues {
+    minPlayers:number,
+    maxPlayers:number,
+    requiredVictoryPoints:number,
+    maxHandCards:number,
+    defaultBankTradeFactor:number,
+    unspecifiedPortFactor:number,
+    specifiedPortFactor:number,
+    maxPlayerNameLength:number,
+    usableDevCards:string[],
+    bonusCardVictoryPoints:JMap<string, number>
+}
+
+export interface GameStatus {
     hasUndo: boolean,
     hasRedo: boolean,
-    resourceImages: JMap<string, Array<number>>,
-    buildablePoints: PlacementPointID[]
+    buildablePoints: PlacementPointID[],
 }
 
 export interface PlacementPointID {
     class: string,
-    name: string,
     id: number
 }
 
@@ -35,14 +57,13 @@ export interface ClassicGame {
     developmentCards: string[],
     players: JMap<PlayerID, ClassicPlayer>,
     bonusCards: JMap<string, [PlayerID, number] | null>,
-    winner: PlayerID | null,
-    minPlayers: number
+    winner: PlayerID | null
 }
 
 
 
 export interface ClassicGameField {
-    field: Hex[][],
+    field: (Hex | null)[][],
     edges: JMap<[number, number], Edge>,
     vertices: JMap<[number, number, number], Vertex>,
     robber: number
