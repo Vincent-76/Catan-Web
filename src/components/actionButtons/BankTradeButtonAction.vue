@@ -1,6 +1,8 @@
 <template>
-  <GameButton>Build</GameButton>
-  <CommandButton command="setBuildState" style="display: none" /> <!-- TODO -->
+  <div>
+    <GameButton>Bank Trade</GameButton>
+    <CommandButton command="bankTrade" data="{ 'give': TODO, 'get': TODO }" style="display: none" /> <!-- TODO -->
+  </div>
 </template>
 
 <script lang="ts">
@@ -10,7 +12,7 @@ import CommandButton from "@/components/CommandButton.vue";
 import GameButton from "@/components/GameButton.vue";
 
 export default defineComponent({
-  name: "BankTradeButton",
+  name: "BankTradeButtonAction",
   components: {
     GameButton,
     CommandButton

@@ -5,7 +5,7 @@
         <div class="playerPoints @gameData.pBorderColorClass( player.id )">
           <p>{{ victoryPoints }}</p>
         </div>
-        <p class="playerName">{{ playerName }}</p>
+        <p class="playerName" :style="turnNameStyle">{{ playerName }}</p>
       </div>
       <div class="col-lg row p-0 mx-0">
         <div v-for="resource in resources" :key="resource" class="col p-0">
@@ -62,9 +62,12 @@ export default defineComponent({
       console.log( this.store.gameData?.playerID ?? "-" )
       return this.player?.name ?? ""
     },
+    turnNameStyle():string {
+      return `text-decoration: ${ this.store.onTurn() ? "underline" : "none" }`
+    },
     devCards():string[] {
-      return [ "GreatHall", "Knight" ]
-      //return this.player?.devCards ?? []
+      //return [ "GreatHall", "Knight" ]
+      return this.player?.devCards ?? []
     },
     resources():string[] {
       return [

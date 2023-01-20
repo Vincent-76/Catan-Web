@@ -4,7 +4,7 @@
       <div class="playerCardPoints" :class="borderColorClass">
         <p>{{ displayVictoryPoints }}</p>
       </div>
-      <p class="playerCardName">{{ p.name }}</p>
+      <p class="playerCardName" :style="turnNameStyle">{{ p.name }}</p>
     </div>
     <div class="playerDisplayInfos">
       <div class="playerDisplayInfo">
@@ -25,6 +25,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import store from "@/store";
 import {pBorderColorClass, playerDisplayVictoryPoints} from "@/util/util";
 import {ClassicPlayer} from "@/model/game_data";
 import { Vue } from "vue-class-component";
@@ -60,7 +61,9 @@ export default defineComponent({
     }
   },
   data() {
-    return {}
+    return {
+      store
+    }
   },
   computed: {
     p():ClassicPlayer {
@@ -77,6 +80,12 @@ export default defineComponent({
     },
     knightsAmount():number {
       return this.p.usedDevCards.filter( d => d === "Knight" ).length
+    },
+    onTurn():boolean {
+      return this.store.gameData?.game.turn.playerID.id === this.p.id.id
+    },
+    turnNameStyle():string {
+      return `text-decoration: ${ this.onTurn ? "underline" : "none" }`
     }
   }
 } )
@@ -87,7 +96,7 @@ export default defineComponent({
 
   .playerCard {
     flex-grow: 1;
-    margin: @playerCardMargin @playerCardMargin @playerCardMargin @playerCardMargin;
+    margin: @playerCardMargin @playerCardMargin 0 @playerCardMargin;
     border: solid 0.3rem black;
     box-sizing: border-box;
     background-image: url( "~@/assets/images/wood_background.jpg" );

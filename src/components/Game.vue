@@ -16,12 +16,12 @@
         <img :src="require( '@/assets/images/upload.png' )" alt="Upload" />
         <input type="file" id="uploadInput" />
       </label>-->
-      <a v-if="store.onTurn() && hasUndo" id="undoButton" class="button asyncButton navButton2" @click="undo">
+      <CommandButton v-if="store.onTurn() && hasUndo" id="undoButton" command="undo" class="navButton2">
         <img :src="require( '@/assets/images/undo.png' )" alt="Undo" />
-      </a>
-      <a v-if="store.onTurn() && hasRedo" id="redoButton" class="button asyncButton navButton2" @click="redo">
+      </CommandButton>
+      <CommandButton v-if="store.onTurn() && hasRedo" id="redoButton" command="redo" class="navButton2">
         <img :src="require( '@/assets/images/redo.png' )" alt="Redo" />
-      </a>
+      </CommandButton>
       <div id="gridPanel">
         <img id="compass" :src="require( '@/assets/images/compass_2.png' )" alt="" />
         <div>
@@ -33,7 +33,7 @@
     <div id="turnPanel" class="col-md-2 row mx-0 p-0 ropeBorder">
       <PlayerInfo />
       <div class="horizontalRopeBorderSeparator ropeBorder"></div>
-      <!-- <Actions /> -->
+      <PlayerActions />
     </div>
   </div>
 
@@ -65,15 +65,19 @@
   import PlayerList from "@/components/PlayerList.vue"
   import PlayerInfo from "@/components/PlayerInfo.vue"
   import GameField from "@/components/GameField.vue"
+  import PlayerActions from "@/components/PlayerActions.vue";
+  import CommandButton from "@/components/CommandButton.vue";
 
   export default defineComponent( {
     // eslint-disable-next-line vue/multi-word-component-names
     name: "Game",
     components: {
+      PlayerActions,
       GameStack,
       PlayerList,
       PlayerInfo,
-      GameField
+      GameField,
+      CommandButton
     },
     data() {
       return {
@@ -92,12 +96,6 @@
       backHome() {
         this.store.setTitle()
       },
-      undo() {
-        console.log( "undo" )
-      },
-      redo() {
-        console.log( "redo" )
-      }
     }
   } )
 </script>
@@ -135,6 +133,7 @@
     border: 0.5rem solid transparent;
     box-sizing: border-box;
     align-content: flex-start;
+    overflow: hidden;
 
     @media @portrait {
       max-height: 15%;

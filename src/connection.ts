@@ -79,12 +79,12 @@ export class Connection {
     private onOpen():void {
         this.connecting = false;
         console.log( "WebSocket opened!" )
-        if( this.nextAnswerID < 0 )
-            this.requestNextAnswerID()
-        if( this.openConfirmations.length > 0 && this.send( `[${this.openConfirmations.map( id => `"!${id}"` ).join( "," )}]` ) )
+        this.nextAnswerID = -1
+        this.requestNextAnswerID()
+        if( this.openConfirmations.length > 0 && this.send( JSON.stringify( this.openConfirmations.map( id => `!${id}` ) ) ) )
             this.openConfirmations = []
         if( this.requests.size > 0 )
-            this.send( `[${Array.from( this.requests.values() ).map( r => `"${r.serialize()}"` ).join( "," )}]` )
+            this.send( JSON.stringify( Array.from( this.requests.values() ).map( r => r.serialize() ) ) )
         //this.requests.forEach( ( request ) => this.send( request.serialize() ) )
     }
 
@@ -94,16 +94,16 @@ export class Connection {
 
     private onMessage( message:MessageEvent ):void {
         const msg:string = message.data
-        if( msg.length <= 50 )
-            console.log( { msg: msg, nextAnswerID: this.nextAnswerID } )
-        else
-            console.log( { msg: msg.substring( 0, 50 ) + " ...", nextAnswerID: this.nextAnswerID } )
+        //if( msg.length <= 50 )
+            console.log( { nextAnswerID: this.nextAnswerID, msg: msg } )
+        //else
+         //   console.log( { msg: msg.substring( 0, 50 ) + " ...", nextAnswerID: this.nextAnswerID } )
         if( msg.startsWith( "-" ) && this.nextAnswerID < 0 ) {
             this.nextAnswerID = parseInt( msg.substring( 1 ) ) ?? -1
             if( this.nextAnswerID >= 0 )
                 this.checkOpenInput()
         } else if( msg.startsWith( "[" ) )
-            ( JSON.parse( msg ) as string[] ).forEach( this.handleRawMessage )
+            ( JSON.parse( msg ) as string[] ).forEach( m => this.handleRawMessage( m ) )
         else this.handleRawMessage( msg )
     }
 

@@ -49,10 +49,11 @@ export default reactive( {
         this.appState = AppState.Game
     },
     gameUpdate( data:string ):void {
-        if( this.gameData == null )
+        if( this.gameData === null )
             return
         //console.log( data )
         const updates:JMap<any[], any> = JSON.parse( data )
+        console.log( { updates: updates } )
         for( const u of updates ) {
             if( u.k.length == 0 )
                 this.gameData.game = u.v
@@ -104,8 +105,8 @@ export default reactive( {
         }
     },
     updateGameData( data:string ):void {
-        //console.log( data )
         this.gameData = JSON.parse( data )
+        console.log( { gameData: this.gameData } )
     },
     updateGame( data:string ):void {
         if( this.gameData != null )

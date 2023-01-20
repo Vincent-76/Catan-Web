@@ -39,7 +39,7 @@ export default defineComponent({
     background-position: center;
     background-size: 430px;
     background-repeat: repeat;
-    padding: @playerCardMargin 0 @playerCardMargin 0;
+    padding: @playerCardMargin 0 calc( @playerCardMargin + 0.5rem ) 0;
     display: flex;
     flex-direction: column;
 
