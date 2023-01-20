@@ -24,8 +24,13 @@ export interface GameValues {
     unspecifiedPortFactor:number,
     specifiedPortFactor:number,
     maxPlayerNameLength:number,
-    usableDevCards:string[],
+    devCards:JMap<string, DevCardInfo>,
     bonusCardVictoryPoints:JMap<string, number>
+}
+
+export interface DevCardInfo {
+    usable:boolean,
+    desc:string
 }
 
 export interface GameStatus {

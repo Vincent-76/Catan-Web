@@ -36,26 +36,7 @@
       <PlayerActions />
     </div>
   </div>
-
-
-  <!--
-  <input type="checkbox" id="gameInfoToggle" checked/>
-  <label for="gameInfoToggle" id="gameInfo" class="dialogDisplay">
-    <div>
-      @info.get match {
-      case i:DiceInfo => {
-      @dice_info( i )
-      }
-      case i:GatherInfo => {
-      @gather_info( i )
-      }
-      case i => {
-      <p>@i.toString</p>
-      }
-      }
-    </div>
-  </label>
-  } -->
+  <InfoDialog />
 </template>
 
 <script lang="ts">
@@ -67,11 +48,13 @@
   import GameField from "@/components/GameField.vue"
   import PlayerActions from "@/components/PlayerActions.vue";
   import CommandButton from "@/components/CommandButton.vue";
+  import InfoDialog from "@/components/InfoDialog.vue";
 
   export default defineComponent( {
     // eslint-disable-next-line vue/multi-word-component-names
     name: "Game",
     components: {
+      InfoDialog,
       PlayerActions,
       GameStack,
       PlayerList,
@@ -90,7 +73,7 @@
       },
       hasRedo():boolean {
         return this.store.gameData?.gameStatus.hasRedo === true
-      }
+      },
     },
     methods: {
       backHome() {
@@ -285,5 +268,20 @@
     top: 0;
     right: 0;
     transform: translate( -10%, 120% );
+  }
+
+
+
+  #gameInfo {
+    //width: 30%;
+    padding: 1rem;
+    border: solid 0.4rem black;
+    border-radius: 1rem;
+    background-color: #D09029;
+
+    @media @portrait {
+      width: auto;
+      height: 40%;
+    }
   }
 </style>

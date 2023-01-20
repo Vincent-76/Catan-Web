@@ -65,3 +65,18 @@ export function adjacentVertex( hex:Hex, offsetIndex1:number, offsetIndex2:numbe
     }
     return undefined
 }
+
+
+export function resourcesString( prefix:string, resources:JMap<string, number> ):string {
+    return resources.filter( e => e.v > 0 ).map( e => `${prefix} ${e.v} ${e.k}` ).join( ", " )
+}
+
+export function toLength( s:string, l:number ) {
+    if( s.length > length )
+        return s.substring( 0, l )
+    else
+        return Array.from( Array( length - s.length ) ).reduce(
+            r => r + " ",
+            s
+        )
+}

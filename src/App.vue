@@ -190,7 +190,7 @@
     text-align: center;
   }
 
-  .dialogDisplay {
+  .dialog {
     position: fixed;
     width: 100vw;
     height: 100vh;
@@ -204,17 +204,6 @@
     z-index: 100;
     padding-left: 10%;
     padding-right: 10%;
-  }
-
-  .dialog {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-
-    &:target {
-      visibility: visible;
-      opacity: 1;
-    }
   }
 
   #generalErrorsToggle {

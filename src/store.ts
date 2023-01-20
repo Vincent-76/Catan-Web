@@ -18,6 +18,7 @@ export default reactive( {
     con: new Connection(),
     appState: AppState.Title,
     gameData: null as ClassicGameData | null,
+    info: null as any | null,
     hasGame():boolean {
         return this.gameData !== null;
     },
@@ -44,6 +45,9 @@ export default reactive( {
     },
     onTurn():boolean {
         return this.gameData?.playerID?.id !== null && this.gameData?.game.turn.playerID.id === this.gameData?.playerID?.id
+    },
+    setInfo( info:any ) {
+        this.info = info
     },
     setGame():void {
         this.appState = AppState.Game

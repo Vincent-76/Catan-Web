@@ -215,7 +215,7 @@ export class Connection {
     private onUpdate( update:string, data:string ):void {
         console.log( "Update: " + update )
         switch ( update ) {
-            case "info": return alert( data )
+            case "info": return store.setInfo( data ) // alert( data )
             case "gameUpdate": return store.gameUpdate( data )
             case "gameData": return store.updateGameData( data )
             case "game": return store.updateGame( data )
