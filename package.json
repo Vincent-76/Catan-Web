@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "postinstall": "npm run build",
+    "start": "node server.js"
   },
   "engines": {
     "npm": "8.1.4",
@@ -15,8 +17,10 @@
     "bootstrap": "^5.2.3",
     "bootstrap-vue": "^2.23.1",
     "core-js": "^3.8.3",
+    "express": "^4.18.2",
     "pdfvuer": "^2.0.1",
     "register-service-worker": "^1.7.2",
+    "serve-static": "^1.15.0",
     "uuid": "^9.0.0",
     "vue": "^3.2.45",
     "vue-class-component": "^8.0.0-0",
