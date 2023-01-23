@@ -5,6 +5,11 @@ export interface JMapEntry<K, V> {
 
 export type JMap<K, V> = JMapEntry<K, V>[]
 
+
+const RESOURCES:string[] = [ "Wood", "Clay", "Sheep", "Wheat", "Ore" ]
+export { RESOURCES }
+
+
 export interface ClassicGameData {
     gameID:string,
     host:boolean,

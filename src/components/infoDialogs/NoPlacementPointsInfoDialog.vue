@@ -1,5 +1,7 @@
 <template>
-  <p>{{ `The aren't any more possible placement points for structure ${structure} to build more.` }}</p>
+  <p class="dialogText">
+    {{ `The aren't any more possible placement points for structure ${structure} to build more.` }}
+  </p>
 </template>
 
 <script lang="ts">

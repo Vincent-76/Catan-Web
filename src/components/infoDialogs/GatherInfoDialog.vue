@@ -1,6 +1,7 @@
 <template>
-  <p>{{ `${dices[0]} + ${dices[1]} = ${dices[0] + dices[1]}` }}</p>
-  <p v-for="(e, i) in playerResources" :key="i">
+  <p class="dialogText">{{ `${dices[0]} + ${dices[1]} = ${dices[0] + dices[1]}` }}</p>
+  <br />
+  <p v-for="(e, i) in playerResources" :key="i" class="dialogText">
     {{ `${playerName(e.k)} ${resources(e.v)}` }}
   </p>
 </template>

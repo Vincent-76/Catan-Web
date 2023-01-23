@@ -2,7 +2,7 @@
   <div id="playerPanel" class="row mx-0 p-2">
     <div id="playerResourceHolder" class="col-lg-6 row mx-0 p-0">
       <div id="playerNameHolder" class="col-lg p-0 pb-2">
-        <div class="playerPoints @gameData.pBorderColorClass( player.id )">
+        <div class="playerPoints" :class="borderColorClass">
           <p>{{ victoryPoints }}</p>
         </div>
         <p class="playerName" :style="turnNameStyle">{{ playerName }}</p>
@@ -17,36 +17,38 @@
       </div>
     </div>
     <div id="playerDevCards" class="col-lg-6 p-0">
-      <label v-for="(devCard, i) in devCards" :key="i" :for="devCardLabelFor( devCard )" class="playerDevCard">{{ devCard }}</label>
+      <div v-for="(d, i) in devCards" :key="i" class="playerDevCard" @click="devCard = d">
+        {{ d }}
+      </div>
     </div>
   </div>
 
-  <div v-for="devCard in new Set( devCards )" :key="devCard">
-    <input type="checkbox" :id="devCardLabelFor( devCard )" class="devCardDialogControl" />
-    <label :for="devCardLabelFor( devCard )" :id="`devCard${devCard}`" class="devCardDialog dialogDisplay">
-      <div>
-        <img :src="require( `@/assets/images/devCards/${devCard.toLowerCase()}.png` )" :alt="devCard">
-        <CommandButton v-if="devCardUsable( devCard )" command="useDevCard" :data="devCard">Use</CommandButton>
-      </div>
-    </label>
-  </div>
+  <Dialog :show="devCard != null" :content-style="devCardDialogStyle" class="devCardDialog" @click="devCard = null">
+    <img :src="require( `@/assets/images/devCards/${devCard.toLowerCase()}.png` )" :alt="devCard">
+    <CommandButton v-if="devCardUsable" command="useDevCard" :data="devCard" v-on:click.prevent>
+      Use
+    </CommandButton>
+  </Dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 import store from "@/store"
-import {ClassicPlayer} from "@/model/game_data";
-import {playerDisplayVictoryPoints} from "@/util/util";
-import CommandButton from "@/components/CommandButton.vue";
+import {ClassicPlayer, RESOURCES} from "@/model/game_data";
+import {pBorderColorClass, playerDisplayVictoryPoints} from "@/util/util";
+import CommandButton from "@/components/util/CommandButton.vue";
+import Dialog from "@/components/util/Dialog.vue";
 
 export default defineComponent({
   name: "PlayerInfo",
   components: {
+    Dialog,
     CommandButton
   },
   data() {
     return {
-      store
+      store,
+      devCard: null as string | null
     }
   },
   computed: {
@@ -57,6 +59,9 @@ export default defineComponent({
       if( this.player === null )
         return 0
       return playerDisplayVictoryPoints( this.player ) + this.player.devCards.filter( d => d === "GreatHall" ).length
+    },
+    borderColorClass():string {
+      return pBorderColorClass( this.player?.color ?? "" )
     },
     playerName():string {
       console.log( this.store.gameData?.playerID ?? "-" )
@@ -70,13 +75,21 @@ export default defineComponent({
       return this.player?.devCards ?? []
     },
     resources():string[] {
-      return [
-          "Wood",
-          "Clay",
-          "Sheep",
-          "Wheat",
-          "Ore"
-      ]
+      return RESOURCES
+    },
+    devCardDialogStyle():object {
+      return {
+        border: "none",
+        backgroundColor: "transparent"
+      }
+    },
+    devCardUsable():boolean {
+      console.log( { devCard: this.devCard, state: this.store.gameData?.game.state, usableCards: this.store.gameData?.gameValues.devCards } )
+      return this.store.gameData?.gameValues.devCards.find( e => e.k === this.devCard )?.v.usable === true &&
+          this.store.onTurn() && (
+              this.store.gameData?.game.state.class === "DiceState" ||
+              this.store.gameData?.game.state.class === "ActionState"
+          )
     }
   },
   methods: {
@@ -85,12 +98,6 @@ export default defineComponent({
     },
     resourceAmount( resource:string ):number {
       return this.player?.resources.find( e => e.k === resource )?.v ?? 0
-    },
-    devCardUsable( devCard:string ):boolean {
-      return this.store.gameData?.gameValues.usableDevCards.includes( devCard ) === true/* && (
-          this.store.gameData?.game.state === "DiceState" ||
-          this.store.gameData?.game.state === "ActionState"
-      )*/
     }
   }
 })
@@ -227,24 +234,16 @@ export default defineComponent({
     }
   }
 
-  .devCardDialogControl {
-    display: none;
-
-    &:not(:checked) + .devCardDialog {
-      visibility: hidden;
-      opacity: 0;
-    }
-  }
 
   .devCardDialog {
     transition: opacity 0.5s ease;
 
-    > img {
-      width: 30%;
+    img {
+      width: 30vw;
 
       @media @portrait {
         width: auto;
-        height: 40%;
+        height: 40vh;
       }
     }
   }

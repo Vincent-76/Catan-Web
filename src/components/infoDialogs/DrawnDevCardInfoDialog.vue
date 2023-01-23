@@ -1,6 +1,7 @@
 <template>
-  <p>{{ `Drawn ${devCard}` }}</p>
-  <p>{{ desc }}</p>
+  <p class="dialogText">{{ `Drawn ${devCard}` }}</p>
+  <br />
+  <p class="dialogText">{{ desc }}</p>
 </template>
 
 <script lang="ts">

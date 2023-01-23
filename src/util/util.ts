@@ -12,6 +12,16 @@ export function pBGColorClass( color:string ):string {
     return ""
 }
 
+export function pTextColorClass( color:string ):string {
+    switch ( color ) {
+        case "Green": return "pTextColorGreen"
+        case "Blue": return "pTextColorBlue"
+        case "Yellow": return "pTextColorYellow"
+        case "Red": return "pTextColorRed"
+    }
+    return ""
+}
+
 export function pBorderColorClass( color:string ):string {
     switch ( color ) {
         case "Green": return "pBorderColorGreen";

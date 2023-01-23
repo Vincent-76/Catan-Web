@@ -19,6 +19,8 @@ export default reactive( {
     appState: AppState.Title,
     gameData: null as ClassicGameData | null,
     info: null as any | null,
+    error:null as string | null,
+    executing: false,
     hasGame():boolean {
         return this.gameData !== null;
     },
@@ -47,7 +49,10 @@ export default reactive( {
         return this.gameData?.playerID?.id !== null && this.gameData?.game.turn.playerID.id === this.gameData?.playerID?.id
     },
     setInfo( info:any ) {
-        this.info = info
+        this.info = JSON.parse( info )
+    },
+    setError( error:string ) {
+        this.error = error
     },
     setGame():void {
         this.appState = AppState.Game

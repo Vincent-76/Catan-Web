@@ -47,7 +47,7 @@
   import PlayerInfo from "@/components/PlayerInfo.vue"
   import GameField from "@/components/GameField.vue"
   import PlayerActions from "@/components/PlayerActions.vue";
-  import CommandButton from "@/components/CommandButton.vue";
+  import CommandButton from "@/components/util/CommandButton.vue";
   import InfoDialog from "@/components/InfoDialog.vue";
 
   export default defineComponent( {
@@ -73,7 +73,7 @@
       },
       hasRedo():boolean {
         return this.store.gameData?.gameStatus.hasRedo === true
-      },
+      }
     },
     methods: {
       backHome() {
@@ -268,20 +268,5 @@
     top: 0;
     right: 0;
     transform: translate( -10%, 120% );
-  }
-
-
-
-  #gameInfo {
-    //width: 30%;
-    padding: 1rem;
-    border: solid 0.4rem black;
-    border-radius: 1rem;
-    background-color: #D09029;
-
-    @media @portrait {
-      width: auto;
-      height: 40%;
-    }
   }
 </style>

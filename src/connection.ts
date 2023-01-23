@@ -11,24 +11,25 @@ class ConnectionRequest<T> {
     promise:Promise<T>;
     private resolveF:( (value: T | PromiseLike<T>) => void ) | null = null;
     private rejectF:( (reason?:unknown) => void ) | null = null;
-    private timeout:number = Date.now() + 60 * 1000;
+    //private timeout:number = Date.now() + 60 * 1000;
 
     constructor( public id:number, public command:string, public data:string ) {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const t = this;
-        this.promise = new Promise<T>( function( resolve, reject ) {
-            t.resolveF = resolve;
-            t.rejectF = reject;
-        } )
+        this.promise = Promise.race( [
+            new Promise<T>( ( res, rej ) => [this.resolveF, this.rejectF] = [res, rej] ),
+            new Promise<T>( ( res, rej ) => setTimeout(
+                () => rej( "Timeout" ),
+                60 * 1000
+            ) )
+        ] )
     }
 
     serialize():string {
         return this.id.toString() + "|" + this.command + "|" + this.data
     }
 
-    isTimeout( timestamp:number ):boolean {
+    /*isTimeout( timestamp:number ):boolean {
         return timestamp > this.timeout;
-    }
+    }*/
 
     resolve( value:T ):void {
         if( this.resolveF != null )
@@ -51,7 +52,7 @@ export class Connection {
     private openConfirmations:number[] = []
     private openInput:Map<number, string> = new Map()
     //private queue:Queue<ConnectionRequest<string>> = new Queue()
-    private timeoutTimer:number
+    /*private timeoutTimer:number
 
     constructor() {
         this.timeoutTimer = setInterval( () => Connection.checkTimeout( this ), 5000 )
@@ -64,7 +65,7 @@ export class Connection {
                 t.requests.delete( entry[0] )
                 entry[1].reject( "Timeout" )//ConnectionError.TIMEOUT. )
             }
-    }
+    }*/
 
     connect( sessionID:string ) {
         this.connecting = true;
@@ -134,6 +135,7 @@ export class Connection {
     }
 
     private handleMessage( msg:string ):void {
+        console.log( "Handle: " + msg )
         this.nextAnswerID++
         const i:number = msg.indexOf( "|" )
         if( i >= 0 ) {

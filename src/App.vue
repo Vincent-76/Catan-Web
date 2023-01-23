@@ -3,6 +3,7 @@
   <GameRules v-else-if="store.isRules()" />
   <GameSetup v-else-if="store.isSetup()" />
   <Game v-else />
+  <ErrorDialog />
 </template>
 
 <script lang="ts">
@@ -13,9 +14,13 @@
   import {uuid} from "vue-uuid";
   import GameSetup from "@/components/GameSetup.vue";
   import GameRules from "@/components/GameRules.vue";
+  import Dialog from "@/components/util/Dialog.vue";
+  import ErrorDialog from "@/components/ErrorDialog.vue";
 
   @Options({
     components: {
+      ErrorDialog,
+      Dialog,
       GameRules,
       GameSetup,
       TitleMenu,
@@ -43,7 +48,10 @@
           //.then( () => new Promise( f => setTimeout( f, 3000 ) ) )
           .finally( async () => this.initialLoaded = true )
     },
-    methods: {
+    computed: {
+      hasError():boolean {
+        return this.store.error != null
+      }
     }
   })
   export default class App extends Vue {}
@@ -130,6 +138,7 @@
 
   .buttonDisabled {
     background: grey none !important;
+    border-color: black !important;
   }
 
 
@@ -206,27 +215,13 @@
     padding-right: 10%;
   }
 
-  #generalErrorsToggle {
-    display: none;
-
-    &:not(:checked) ~ #generalErrors {
-      display: none;
-    }
+  .dialogText {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: black;
+    margin: 0;
   }
 
-  #generalErrors {
-    > div {
-      background-color: indianred;
-      border: solid 0.4rem black;
-      border-radius: 12px;
-      text-align: center;
-      padding: 1rem;
-    }
-
-    p {
-      margin: 0;
-    }
-  }
 
   .pBGColorGreen { background-color: @pColorGreen !important; }
   .pTextColorGreen { color: @pColorGreen !important; }

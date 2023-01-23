@@ -31,8 +31,8 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import store from "@/store"
-import Stack from "@/components/Stack.vue"
-import ResourceStack from "@/components/ResourceStack.vue";
+import Stack from "@/components/util/Stack.vue"
+import ResourceStack from "@/components/util/ResourceStack.vue";
 
 export default defineComponent({
   name: "GameStack",

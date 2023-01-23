@@ -30,8 +30,8 @@
 <script lang="ts">
   import { defineComponent } from "vue";
   import store from "@/store"
-  import GameButton from "@/components/GameButton.vue";
-  import CommandButton from "@/components/CommandButton.vue";
+  import GameButton from "@/components/util/GameButton.vue";
+  import CommandButton from "@/components/util/CommandButton.vue";
 
   export default defineComponent( {
     name: "TitleMenu",

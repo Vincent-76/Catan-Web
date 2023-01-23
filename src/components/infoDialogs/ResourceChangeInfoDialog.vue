@@ -1,8 +1,9 @@
 <template>
-  <p v-for="(e, i) in playerAdd" :key="i">
+  <p v-for="(e, i) in playerAdd" :key="i" class="dialogText">
     {{ `${playerNameFormatted( e.k )} ${resources( "+", e.v )}` }}
   </p>
-  <p v-for="(e, i) in playerSub" :key="i">
+  <br />
+  <p v-for="(e, i) in playerSub" :key="i" class="dialogText">
     {{ `${playerNameFormatted( e.k )} ${resources( "-", e.v )}` }}
   </p>
 </template>

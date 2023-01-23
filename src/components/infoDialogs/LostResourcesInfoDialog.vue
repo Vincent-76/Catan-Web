@@ -1,5 +1,5 @@
 <template>
-  <p>{{ `${playerName( pID )} ${resources}` }}</p>
+  <p class="dialogText">{{ `${playerName( pID )} ${resources}` }}</p>
 </template>
 
 <script lang="ts">

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import store from "@/store"
-import Stack from "@/components/Stack.vue"
+import Stack from "@/components/util/Stack.vue"
 
 export default defineComponent({
   name: "ResourceStack",

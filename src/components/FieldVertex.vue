@@ -15,7 +15,7 @@ import { defineComponent } from "vue"
 import store from "@/store"
 import {Vertex} from "@/model/game_data";
 import {pBGColorClass} from "@/util/util";
-import CommandButton from "@/components/CommandButton.vue";
+import CommandButton from "@/components/util/CommandButton.vue";
 
 export default defineComponent({
   name: "FieldVertex",

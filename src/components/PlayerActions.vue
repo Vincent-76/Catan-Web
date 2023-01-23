@@ -1,5 +1,5 @@
 <template>
-  <div id="actionPanel">
+  <div id="playerActions">
     <div v-if="isStateTurn( 'ActionState' )">
       <BuildButtonAction />
       <BankTradeButtonAction />
@@ -15,31 +15,19 @@
         <img :src="require( '@/assets/images/dices.png' )" alt="Roll The Dices" />
       </CommandButton>
     </div>
-    <div v-else-if="isStateTurn( 'DropHandCardsState' )">
-      <DropHandCardsAction />
-    </div>
-    <div v-else-if="isStateTurn( 'MonopolyState' )">
-      <MonopolyAction />
-    </div>
-    <div v-else-if="isStateTurn( 'PlayerTradeEndState' )">
-      <PlayerTradeEndAction />
-    </div>
-    <div v-else-if="playerTradeState">
-      <PlayerTradeAction />
-    </div>
-    <div v-else-if="isStateTurn( 'RobberStealState' )">
-      <RobberStealAction />
-    </div>
-    <div v-else-if="isStateTurn( 'YearOfPlentyState' )">
-      <YearOfPlentyAction />
-    </div>
+    <DropHandCardsAction v-else-if="dropHandCardsState" />
+    <MonopolyAction v-else-if="isStateTurn( 'MonopolyState' )" />
+    <PlayerTradeEndAction v-else-if="isStateTurn( 'PlayerTradeEndState' )" />
+    <PlayerTradeAction v-else-if="playerTradeState" />
+    <RobberStealAction v-else-if="isStateTurn( 'RobberStealState' )" />
+    <YearOfPlentyAction v-else-if="isStateTurn( 'YearOfPlentyState' )" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 import store from "@/store"
-import CommandButton from "@/components/CommandButton.vue";
+import CommandButton from "@/components/util/CommandButton.vue";
 import BuildButtonAction from "@/components/actionButtons/BuildButtonAction.vue";
 import BankTradeButtonAction from "@/components/actionButtons/BankTradeButtonAction.vue";
 import SetPlayerTradeButtonAction from "@/components/actionButtons/SetPlayerTradeButtonAction.vue";
@@ -70,6 +58,11 @@ export default defineComponent({
     }
   },
   computed: {
+    dropHandCardsState():boolean {
+      return this.isState( "DropHandCardsState" )
+          && this.store.hasGame()
+          && this.store.gameData?.game.state.pID.id === this.store.gameData?.playerID?.id
+    },
     playerTradeState():boolean {
       return this.isState( "PlayerTradeState" )
           && this.store.hasGame()
@@ -90,7 +83,9 @@ export default defineComponent({
 <style lang="less" scoped>
   @import "@/assets/vars.less";
 
-  #actionPanel {
+  #playerActions {
+    width: 100%;
+    flex-grow: 1;
     background-image: url( "~@/assets/images/stone_background.jpg" );
     background-position: center;
     background-size: 430px;
@@ -103,6 +98,8 @@ export default defineComponent({
 
     @media @portrait {
       flex-direction: row;
+      height: 100%;
+      width: auto;
     }
 
     /*> * {

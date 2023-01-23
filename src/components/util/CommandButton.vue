@@ -53,14 +53,15 @@ export default defineComponent( {
     classes() {
       return [
         this.buttonClass,
-        !this.enabled ? "buttonDisabled" : "",
+        !this.enabled || ( !this.isLoading && this.store.executing ) ? "buttonDisabled" : "",
         this.isLoading ? "buttonLoading" : ""
       ]
     }
   },
   methods: {
     async execute() {
-      if( this.enabled && !this.isLoading && this.validation() ) {
+      if( this.enabled && !this.store.executing && !this.isLoading && this.validation() ) {
+        this.store.executing = true
         this.loading = true
         this.store.con.execute( this.command, this.data )
           .then( async function( s ) {
@@ -68,9 +69,20 @@ export default defineComponent( {
             return s
           } )
           .then( s => this.$emit( "result", s ) )
-          .catch( reason => this.errorHandling ? this.$emit( "error", reason ) : alert( reason ) )
-          .finally( () => this.loading = false )
+          .catch( reason => this.errorHandling ? this.$emit( "error", reason ) : this.store.setError( reason ) )
+          .finally( () => this.final() )
       }
+    },
+    /*error( reason:unknown ):void {
+      if( this.errorHandling )
+        this.$emit( "error", reason )
+      else
+        alert( reason )
+    },*/
+    final():void {
+      this.store.executing = false
+      this.loading = false
+      this.$emit( "finally" )
     }
   }
 } )

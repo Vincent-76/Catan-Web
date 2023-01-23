@@ -45,7 +45,7 @@ import {defineComponent, PropType} from "vue"
 import store from "@/store"
 import {Edge, Hex, JMap, Vertex} from "@/model/game_data";
 import {adjacentEdge, adjacentOffset, adjacentVertex} from "@/util/util";
-import CommandButton from "@/components/CommandButton.vue";
+import CommandButton from "@/components/util/CommandButton.vue";
 import FieldRoad from "@/components/FieldRoad.vue";
 import FieldVertex from "@/components/FieldVertex.vue";
 

@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import store from "@/store";
 
 export default defineComponent( {
   name: "GameButton",
@@ -19,10 +20,15 @@ export default defineComponent( {
       default: false
     }
   },
+  data() {
+    return {
+      store
+    }
+  },
   computed: {
     loadingClass() {
       return [
-          !this.enabled ? "buttonDisabled" : "",
+          !this.enabled || ( !this.initialLoading && this.store.executing ) ? "buttonDisabled" : "",
           this.initialLoading ? "buttonLoading" : ""
       ].filter( c => c.length > 0 ).join( " " )
     }

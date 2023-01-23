@@ -108,7 +108,7 @@
             <CommandButton v-if="!hasBeginner" id="diceOutButton" command="diceOutBeginner" class="col my-2">
               <img :src="require( '@/assets/images/dices.png')" alt="Roll the dices"/>
             </CommandButton>
-            <CommandButton v-else id="startButton" command="setBeginner" class="col my2">Start</CommandButton>
+            <CommandButton v-else id="startButton" command="setBeginner" class="col my-2">Start</CommandButton>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@
   import { ClassicPlayer, JMap, PlayerID } from "@/model/game_data"
   import { JMapEntry } from "@/model/game_data";
   import deepEqual from "fast-deep-equal"
-  import CommandButton from "@/components/CommandButton.vue";
+  import CommandButton from "@/components/util/CommandButton.vue";
 
   export default defineComponent( {
     name: "GameSetup",

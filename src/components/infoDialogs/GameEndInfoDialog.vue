@@ -1,5 +1,5 @@
 <template>
-  <p>{{ `${winnerName} won the game!` }}</p>
+  <p class="dialogText">{{ `${winnerName} won the game!` }}</p>
 </template>
 
 <script lang="ts">

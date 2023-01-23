@@ -1,5 +1,5 @@
 <template>
-  <p>{{ `You don't have enough structures of ${structure} to build more.` }}</p>
+  <p class="dialogText">{{ `You don't have enough structures of ${structure} to build more.` }}</p>
 </template>
 
 <script lang="ts">

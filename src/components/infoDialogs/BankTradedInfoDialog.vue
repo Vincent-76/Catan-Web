@@ -1,5 +1,5 @@
 <template>
-  <p>{{ `You traded ${giveString} for ${getString}.` }}</p>
+  <p class="dialogText">{{ `You traded ${giveString} for ${getString}.` }}</p>
 </template>
 
 <script lang="ts">

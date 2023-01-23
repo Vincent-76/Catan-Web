@@ -1,12 +1,12 @@
 <template>
-  <p class="dialogText">{{ `${dices[0]} + ${dices[1]} = ${dices[0] + dices[1]}` }}</p>
+  <p class="dialogText">{{ "You have built " + info.structure }}</p>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 
 export default defineComponent({
-  name: "DiceInfoDialog",
+  name: "BuiltInfoDialog",
   props: {
     info: {
       required: true
@@ -14,14 +14,6 @@ export default defineComponent({
   },
   data() {
     return {
-    }
-  },
-  computed: {
-    i():any {
-      return this.info
-    },
-    dices():[number, number] {
-      return this.i.dices
     }
   }
 })
