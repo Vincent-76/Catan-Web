@@ -60,8 +60,7 @@
         this.store.setGame()
       },
       startNewGameValidation():boolean {
-        // TODO Confirmation Message
-        return true
+        return confirm( "Do you really want to start a new Game?" )
       },
       startNewGame():void {
         this.store.gameData = null
