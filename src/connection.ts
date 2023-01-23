@@ -70,7 +70,7 @@ export class Connection {
     connect( sessionID:string ) {
         this.connecting = true;
         this.sessionID = sessionID;
-        this.connection = new WebSocket( "ws://localhost:9000/websocket/" + sessionID );
+        this.connection = new WebSocket( "wss://wa-catan-server.herokuapp.com//websocket/" + sessionID );
         this.connection.onopen = () => this.onOpen()
         this.connection.onmessage = ( message:MessageEvent ) => this.onMessage( message )
         this.connection.onerror = ( error:Event ) => this.onError( error )
